@@ -1,13 +1,11 @@
 from threading import local
 import discord
-import os
 import time
 from discord.ext import commands
 from discord.utils import get
 from discord import FFmpegPCMAudio
 from youtube_dl import YoutubeDL
 from keep_alive import keep_alive
-from music import music 
 
 intents = discord.Intents.default()
 intents.members = True
@@ -64,12 +62,6 @@ async def help(ctx):
     embed.add_field(name='clear', value='Clears message(s)', inline=False)
 
     await ctx.send(embed=embed)
-# ------------------------------------- - ------------------------------------ #
-
-# ----------------------------------- hello ---------------------------------- #
-@client.command()
-async def hello(ctx):
-    await ctx.send('Hello I\'m Boomby, a self made music bot for personal use!')
 # ------------------------------------- - ------------------------------------ #
 
 # ---------------------------------- play, p --------------------------------- #
@@ -302,7 +294,7 @@ async def disconnect(ctx):
         await ctx.guild.voice_client.disconnect()
         await ctx.send(':smiling_face_with_tear: Leaving')
     else:
-        await ctx.send(':confused: Deemo is not in a voice channel')
+        await ctx.send(':confused: Boomby is not in a voice channel')
 # ------------------------------------- - ------------------------------------ #
 
 # ----------------------------------- clear ---------------------------------- #
@@ -316,4 +308,4 @@ async def clear(ctx, count=5):
 
 
 keep_alive()
-client.run('OTA1MDM5NDI5OTM5MzYzODYw.YYERpg.hh3XrY8LLQfOwohbSjecmADtqXg')
+client.run('')
