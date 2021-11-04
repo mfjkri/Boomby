@@ -1,3 +1,4 @@
+#!/media/Programming/repos/py/_discord_bots/Boomby/venv/bin/python   
 from random import random
 from threading import local
 import discord
@@ -5,14 +6,17 @@ import time
 from discord.ext import commands
 from discord.utils import get
 from discord import FFmpegPCMAudio
+from discord import Status
 from youtube_dl import YoutubeDL
 from keep_alive import keep_alive
 
 #token
-from  bot_token import str_token
+from bot_token import str_token
 
 intents = discord.Intents.default()
 intents.members = True
+intents.messages = True
+intents.presences = True
 
 music_queues = {}
 null_music_data = {'source' : None, 'title' : 'Null', 'requestor' : None}
@@ -33,7 +37,6 @@ def play_next_in_queue(ctx, guild_id):
         currently_playing[guild_id] = null_music_data
         
         
-        
 client = commands.Bot(command_prefix = '!', intents=intents, help_command=None)
 
 @client.event
@@ -42,6 +45,11 @@ async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Logged in as {0.user}'.format(client))
     print('-------------------')
+
+@client.event
+async def on_member_update(before, after):
+    print('member', before.status, after.status)
+
 
 
 # ----------------------------------- help ----------------------------------- #
@@ -94,6 +102,11 @@ async def is_connected(ctx, user_connected = True, send_message = False):
 # ------------------------------------- - ------------------------------------ #
 
 # ---------------------------------- play, p --------------------------------- #
+def fformat(dur):
+    hours, rem = divmod(dur, 3600)
+    minutes, seconds = divmod(rem, 60)
+    return "{:0>2}h:{:0>2}m:{:02}s".format(int(hours),int(minutes),seconds)
+    
 async def fplay(ctx, url):
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
@@ -112,16 +125,19 @@ async def fplay(ctx, url):
   
     with YoutubeDL(YDL_OPTIONS) as ydl:
         info = ydl.extract_info(url, download=False)
-      
+
+        o_url = url
         if 'entries' in info:
-            url = info["entries"][0]["formats"][0]['url']
+            url = info['entries'][0]['formats'][0]['url']
+            duration = fformat(int(info['entries'][0]['duration']))
+            short_url = info['entries'][0]['webpage_url']
         elif 'formats' in info:
-            url = info["formats"][0]['url']
-  
-    title = info.get('title')
-    if title == None:
-        title = info['entries'][0]['title']        
-  
+            url = info['formats'][0]['url']
+            duration = None
+            short_url = None
+            
+    title = info.get('title') or info['entries'][0]['title']
+    
     source = (FFmpegPCMAudio(url, **FFMPEG_OPTIONS))
     guild_id = ctx.message.guild.id
    
@@ -131,24 +147,25 @@ async def fplay(ctx, url):
         'requestor' : ctx.message.author
     }
     
+    embed = discord.Embed(colour = discord.Colour.magenta(), url = short_url or o_url)
+    if duration:
+        embed.add_field(name='Length:', value=str(duration))
+    embed.add_field(name='Requested by:', value=ctx.author.mention)
+    
     if voice.is_playing():
-
+        embed.title = "Queued: " + str(title)
         if guild_id in music_queues:
             music_queues[guild_id].append(music_data)
         else:
             music_queues[guild_id] = [music_data]
-
-        embed_q = discord.Embed(colour = discord.Colour.magenta())
-        embed_q.add_field(name=str(title) + ' added to queue', value=ctx.author.mention, inline=False)
-        await ctx.send(embed=embed_q)    
     else:
+        embed.title = ":headphones: Now playing: " + str(title)
         global currently_playing
         currently_playing[guild_id] = music_data
-        
         voice.play(FFmpegPCMAudio(url, **FFMPEG_OPTIONS), after=lambda x=0: play_next_in_queue(ctx, ctx.message.guild.id))
-        embed_p = discord.Embed(colour = discord.Colour.magenta())
-        embed_p.add_field(name=':headphones: Playing: ' + str(title), value=ctx.author.mention, inline=False)
-        await ctx.send(embed=embed_p)
+
+    await ctx.send(embed=embed)    
+    await ctx.send(short_url or o_url)
     
 
 @client.command(pass_context = True)
@@ -348,6 +365,7 @@ async def zqlikes(ctx):
     for i in range(len(st_r)):
         await ctx.send(st_r[0:i+1])
         time.sleep(0.05)
+        
 
 
 keep_alive()
