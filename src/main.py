@@ -278,13 +278,17 @@ async def st(ctx):
         
 @client.command(pass_context = True)
 async def join(ctx):
-    await clear_queue(ctx)
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
         voice = get(client.voice_clients, guild=ctx.guild)
-    
+
+        #await clear_queue(ctx)
         if voice and voice.is_connected():
-            await voice.move_to(channel)
+            if voice.channel != channel:
+                await voice.move_to(channel)
+            else:
+                await ctx.send(':confused: Boomby is already connected to your voice channel.')
+                return
         else:
             voice = await channel.connect()      
     
@@ -296,7 +300,7 @@ async def join(ctx):
 @client.command(pass_context = True)
 async def disconnect(ctx):
     if (ctx.voice_client):
-        await fstop(ctx, True)
+        await clear_queue(ctx, True)
         await ctx.guild.voice_client.disconnect()
         await ctx.send(':smiling_face_with_tear: Leaving')
     else:
@@ -314,4 +318,4 @@ async def clear(ctx, count=5):
 
 
 keep_alive()
-client.run('')
+client.run('OTA1MDM5NDI5OTM5MzYzODYw.YYERpg.BvK4ux0x-LvAeeiYoELpYwqaGJ4')
