@@ -318,4 +318,4 @@ async def clear(ctx, count=5):
 
 
 keep_alive()
-client.run('OTA1MDM5NDI5OTM5MzYzODYw.YYERpg.BvK4ux0x-LvAeeiYoELpYwqaGJ4')
+client.run('')
