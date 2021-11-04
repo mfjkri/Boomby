@@ -15,7 +15,7 @@ intents.members = True
 
 music_queues = {}
 null_music_data = {'source' : None, 'title' : 'Null', 'requestor' : None}
-currently_playing = null_music_data
+currently_playing = {}
 
 def play_next_in_queue(ctx, guild_id):
     queue = music_queues[guild_id]
@@ -25,11 +25,11 @@ def play_next_in_queue(ctx, guild_id):
         music_data = queue.pop(0)
         
         global currently_playing 
-        currently_playing = music_data
+        currently_playing[guild_id] = music_data
         
         voice.play(music_data['source'], after=lambda x=0: play_next_in_queue(ctx, guild_id))
     else:
-        currently_playing = null_music_data
+        currently_playing[guild_id] = null_music_data
         
         
         
@@ -97,6 +97,7 @@ async def fplay(ctx, url):
         title = info['entries'][0]['title']        
   
     source = (FFmpegPCMAudio(url, **FFMPEG_OPTIONS))
+    guild_id = ctx.message.guild.id
    
     music_data = {
         'source' : source,
@@ -105,7 +106,6 @@ async def fplay(ctx, url):
     }
     
     if voice.is_playing():
-        guild_id = ctx.message.guild.id
 
         if guild_id in music_queues:
             music_queues[guild_id].append(music_data)
@@ -117,7 +117,7 @@ async def fplay(ctx, url):
         await ctx.send(embed=embed_q)    
     else:
         global currently_playing
-        currently_playing = music_data
+        currently_playing[guild_id] = music_data
         
         voice.play(FFmpegPCMAudio(url, **FFMPEG_OPTIONS), after=lambda x=0: play_next_in_queue(ctx, ctx.message.guild.id))
         embed_p = discord.Embed(colour = discord.Colour.magenta())
@@ -165,7 +165,7 @@ async def fpause(ctx):
     else:  
         if voice.is_playing():
             voice.pause()
-            await ctx.send(':pause_button: Paused: ' + currently_playing['title'])
+            await ctx.send(':pause_button: Paused: ' + currently_playing[ctx.message.guild.id]['title'])
         else:
             await ctx.send(':confused: Currently playing no audio') 
             
@@ -185,7 +185,7 @@ async def fresume(ctx):
     else:  
         if voice.is_paused():
             voice.resume()
-            await ctx.send(':play_pause: Resumed: ' + currently_playing['title'])
+            await ctx.send(':play_pause: Resumed: ' + currently_playing[ctx.message.guild.id]['title'])
         else:
             await ctx.send(":confused: The audio is not paused..?")
 
@@ -207,9 +207,9 @@ async def fskip(ctx):
     else:
         if voice.is_playing():
             voice.stop()
-            await ctx.send(':track_next: Skipped: ' + currently_playing['title'])
+            await ctx.send(':track_next: Skipped: ' + currently_playing[ctx.message.guild.id]['title'])
         else:
-            currently_playing =  null_music_data
+            currently_playing[ctx.message.guild.id] =  null_music_data
             await ctx.send(':rofl: No more music to skip!')
 
 @client.command(pass_context = True)
@@ -222,11 +222,12 @@ async def s(ctx):
 
 # --------------------------------- queue, q --------------------------------- #
 async def fqueue(ctx):
-    if currently_playing == null_music_data:
+    guild_id = ctx.message.guild.id
+    if not currently_playing[guild_id] or currently_playing[guild_id] == null_music_data:
         await ctx.send(':cricket: Nothing playing or in queue')
     else:
         embed = discord.Embed(colour = discord.Colour.magenta())
-        embed.add_field(name=':microphone: Now playing: ' + currently_playing['title'], value='Requested by :' + currently_playing['requestor'].mention, inline=False)
+        embed.add_field(name=':microphone: Now playing: ' + currently_playing[guild_id]['title'], value='Requested by :' + currently_playing[guild_id]['requestor'].mention, inline=False)
         embed.add_field(name='Up next:', value=':parrot:', inline = False)
         if ctx.message.guild.id in music_queues:
             local_queue = music_queues[ctx.message.guild.id]
@@ -249,7 +250,7 @@ async def q(ctx):
 async def clear_queue(ctx, clear_active = False):
     if clear_active:
         global currently_playing
-        currently_playing = null_music_data
+        currently_playing[ctx.message.guild.id] = null_music_data
     
     if ctx.message.guild.id in music_queues:
         music_queues[ctx.message.guild.id] = []
