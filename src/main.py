@@ -7,6 +7,9 @@ from discord import FFmpegPCMAudio
 from youtube_dl import YoutubeDL
 from keep_alive import keep_alive
 
+#token
+from  bot_token import str_token
+
 intents = discord.Intents.default()
 intents.members = True
 
@@ -318,4 +321,4 @@ async def clear(ctx, count=5):
 
 
 keep_alive()
-client.run('')
+client.run(str_token)
