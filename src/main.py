@@ -243,24 +243,28 @@ async def q(ctx):
 # ------------------------------------- - ------------------------------------ #
 
 # --------------------------------- stop, st --------------------------------- #
-async def fstop(ctx, end = False):
-    global currently_playing
-    currently_playing = null_music_data
+async def clear_queue(ctx, clear_active = False):
+    if clear_active:
+        global currently_playing
+        currently_playing = null_music_data
     
     if ctx.message.guild.id in music_queues:
         music_queues[ctx.message.guild.id] = []
-    
+
+    await ctx.send('Queue has been cleared!')
+
+async def fstop(ctx):
+    await clear_queue(ctx, True)
     await ctx.guild.voice_client.disconnect()
-    
-    if not end:
-        if (ctx.author.voice):
-            channel = ctx.message.author.voice.channel
-            voice = get(client.voice_clients, guild=ctx.guild)
-            if voice and voice.is_connected():
-                await voice.move_to(channel)
-            else:
-                voice = await channel.connect()   
-                await ctx.send(':stop_button: Stopped playing!')
+
+    if (ctx.author.voice):
+        channel = ctx.message.author.voice.channel
+        voice = get(client.voice_clients, guild=ctx.guild)
+        if voice and voice.is_connected():
+            await voice.move_to(channel)
+        else:
+            voice = await channel.connect()   
+            await ctx.send(':stop_button: Stopped playing!')
 
 @client.command(pass_context = True)
 async def stop(ctx):
@@ -271,8 +275,10 @@ async def st(ctx):
 # ------------------------------------- - ------------------------------------ #
 
 # --------------------------------- join, disconnect --------------------------------- #
+        
 @client.command(pass_context = True)
 async def join(ctx):
+    await clear_queue(ctx)
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
         voice = get(client.voice_clients, guild=ctx.guild)
