@@ -174,13 +174,7 @@ async def fremove(ctx, index=0):
         if ctx.message.guild.id in music_queues:
             local_queue = music_queues[ctx.message.guild.id]
             index = int(index)
-            
-            print('old index', index)
-            
-            if index == -1:
-                index = len(local_queue)-1
-            else:
-                index -= 1
+            index = (index == -1 and len(local_queue) - 1) or (index-1)            
             
             if index < 0 or index >= len(local_queue):
                 await ctx.send(':warning: Queue index is out of range. \n\nPlease use !queue first to find the correct queue index. A queue index of -1 would remove the most recently added song to queue')
