@@ -184,7 +184,7 @@ async def fremove(ctx, index=0):
             local_queue = music_queues[ctx.message.guild.id]
             index = int(index)
             
-            if index == 0:
+            if index == -1:
                 index = len(local_queue)
             else:
                 index -= 1
