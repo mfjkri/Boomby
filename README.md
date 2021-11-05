@@ -47,3 +47,4 @@ Ensure that the file in the [src](https://github.com/Eragonaz/Boomby/blob/master
 
 #### `!stop` - Stops the currently playing song and clears the queue as well.
 ###### Alias - `!st`
+---
