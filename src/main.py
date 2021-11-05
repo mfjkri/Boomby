@@ -363,7 +363,6 @@ async def disconnect(ctx):
 @client.command(pass_context = True)
 async def d(ctx):
     await fdisconnect(ctx)
-
 # ------------------------------------- - ------------------------------------ #
 
 # ----------------------------------- clear ---------------------------------- #
