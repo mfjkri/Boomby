@@ -165,7 +165,8 @@ async def fplay(ctx, url):
         voice.play(FFmpegPCMAudio(url, **FFMPEG_OPTIONS), after=lambda x=0: play_next_in_queue(ctx, ctx.message.guild.id))
 
     await ctx.send(embed=embed)    
-    await ctx.send(short_url or o_url)
+    if short_url:
+        await ctx.send(short_url or o_url)
     
 
 @client.command(pass_context = True)
@@ -357,15 +358,6 @@ async def clear(ctx, count=5):
     time.sleep(1)
     await ctx.channel.purge(limit=1)    
 # ------------------------------------- - ------------------------------------ #
-
-# ------------------------------------ zq ------------------------------------ #
-st_r = "ziqian likes constance"
-@client.command()
-async def zqlikes(ctx):
-    for i in range(len(st_r)):
-        await ctx.send(st_r[0:i+1])
-        time.sleep(0.05)
-        
 
 
 keep_alive()
