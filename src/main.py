@@ -147,7 +147,7 @@ async def fplay(ctx, url):
         'requestor' : ctx.message.author
     }
     
-    embed = discord.Embed(colour = discord.Colour.magenta(), url = short_url or o_url)
+    embed = discord.Embed(colour = discord.Colour.magenta(), url = (short_url and url) or o_url)
     if duration:
         embed.add_field(name='Length:', value=str(duration))
     embed.add_field(name='Requested by:', value=ctx.author.mention)
