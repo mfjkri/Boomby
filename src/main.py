@@ -367,7 +367,7 @@ async def d(ctx):
 
 # ----------------------------------- clear ---------------------------------- #
 @client.command()
-async def clear(ctx, count=5):
+async def purge(ctx, count=5):
     await ctx.channel.purge(limit=count+1)
     await ctx.send(':x: Messages deleted!')
     time.sleep(1)
