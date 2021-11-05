@@ -52,15 +52,15 @@ async def help(ctx):
     embed.set_author(name='Command prefix: !')
     embed.add_field(name='help', value='Show available commands.', inline=False)
     
-    embed.add_field(name='join', value='Adds Boomby to your voice-channel. You must be connected to the voice-channel before running this command.', inline=False)
-    embed.add_field(name='disconnect', value='Removes Boomby from your voice-channel.', inline=False)    
+    embed.add_field(name='join, j', value='Adds Boomby to your voice-channel. You must be connected to the voice-channel before running this command.', inline=False)
+    embed.add_field(name='disconnect, d', value='Removes Boomby from your voice-channel.', inline=False)    
     
     embed.add_field(name='play, p [url/name]', value='Plays the song or adds to queue if there are already songs playing.', inline=False)
     embed.add_field(name='remove, rm [queue_index]', value='Removes the song from the queue. Use !queue to find its queue_index. A queue index of -1 will remove the most recently added song from queue.', inline=False)
     embed.add_field(name='queue, q', value='Displays the current song playing and upcoming songs in queue.', inline=False)
     
     embed.add_field(name='pause, ps', value='Pauses current song.', inline=False)
-    embed.add_field(name='resume, r', value='Resumes current song.', inline=False)
+    embed.add_field(name='resume, rs', value='Resumes current song.', inline=False)
     embed.add_field(name='skip, s', value='Skips to next song in queue.', inline=False)
     embed.add_field(name='stop, st', value='Stops current song and clears queue.', inline=False)
     
@@ -224,7 +224,7 @@ async def fresume(ctx):
 async def resume(ctx):
     await fresume(ctx)
 @client.command(pass_context = True)
-async def r(ctx):
+async def rs(ctx):
     await fresume(ctx)
 # ------------------------------------- - ------------------------------------ #
 
@@ -308,8 +308,7 @@ async def st(ctx):
 # ------------------------------------- - ------------------------------------ #
 
 # --------------------------------- join, disconnect --------------------------------- #
-@client.command(pass_context = True)
-async def join(ctx):
+async def fjoin(ctx):
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
         voice = get(client.voice_clients, guild=ctx.guild)
@@ -331,13 +330,29 @@ async def join(ctx):
     else:
         await ctx.send(':angry: You are not in a voice channel')
 
+@client.command(pass_context = True)
+async def join(ctx):
+    await fjoin(ctx)
 
 @client.command(pass_context = True)
-async def disconnect(ctx):
+async def j(ctx):
+    await fjoin(ctx)
+
+
+async def fdisconnect(ctx):
     if await is_connected(ctx, user_connected=True, send_assert=True):
         await clear_queue(ctx, True)
         await ctx.guild.voice_client.disconnect()
         await ctx.send(':smiling_face_with_tear: Leaving')
+        
+@client.command(pass_context = True)
+async def disconnect(ctx):
+    await fdisconnect(ctx)
+    
+@client.command(pass_context = True)
+async def d(ctx):
+    await fdisconnect(ctx)
+
 # ------------------------------------- - ------------------------------------ #
 
 # ----------------------------------- clear ---------------------------------- #
