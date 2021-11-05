@@ -77,9 +77,9 @@ async def help(ctx):
 # ------------------------------------- - ------------------------------------ #
 
 # -------------------------------- isConnected ------------------------------- #
-async def is_connected(ctx, user_connected = True, send_message = False):
+async def is_connected(ctx, user_connected = True, send_assert = False):
     if user_connected and not ctx.author.voice:
-        if send_message:
+        if send_assert:
             await ctx.send(':angry: You are not in a voice channel!')
         return False
 
@@ -90,13 +90,13 @@ async def is_connected(ctx, user_connected = True, send_message = False):
     if voice and voice.is_connected():
         
         if user_connected and voice.channel != ctx.message.author.voice.channel:
-            if send_message:
+            if send_assert:
                 await ctx.send(':angry: You are not in the same voice channel as Boomby!')
             return False
         
         return True
 
-    if send_message:
+    if send_assert:
         await ctx.send(':confused: Boomby is not in a voice channel.. Use !join first.')
     return False
 # ------------------------------------- - ------------------------------------ #
@@ -179,7 +179,7 @@ async def p(ctx, *, url):
 
 # -------------------------------- remove, rm -------------------------------- #
 async def fremove(ctx, index=0):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         if ctx.message.guild.id in music_queues:
             local_queue = music_queues[ctx.message.guild.id]
             index = int(index)
@@ -204,7 +204,7 @@ async def rm(ctx, index):
 
 # --------------------------------- pause, ps -------------------------------- #
 async def fpause(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
         if voice.is_playing():
             voice.pause()
@@ -222,7 +222,7 @@ async def ps(ctx):
 
 # --------------------------------- resume, r -------------------------------- #
 async def fresume(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
         if voice.is_paused():
             voice.resume()
@@ -240,7 +240,7 @@ async def r(ctx):
 
 # ---------------------------------- skip, s --------------------------------- #
 async def fskip(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         global currently_playing    
         voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
         if voice.is_playing():
@@ -260,7 +260,7 @@ async def s(ctx):
 
 # --------------------------------- queue, q --------------------------------- #
 async def fqueue(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         guild_id = ctx.message.guild.id
         if not currently_playing[guild_id] or currently_playing[guild_id] == null_music_data:
             await ctx.send(':cricket: Nothing playing or in queue')
@@ -297,7 +297,7 @@ async def clear_queue(ctx, clear_active = False):
     await ctx.send('Queue has been cleared!')
 
 async def fstop(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         await clear_queue(ctx, True)
         await ctx.guild.voice_client.disconnect()
 
@@ -344,7 +344,7 @@ async def join(ctx):
 
 @client.command(pass_context = True)
 async def disconnect(ctx):
-    if await is_connected(ctx, user_connected=True, send_message=True):
+    if await is_connected(ctx, user_connected=True, send_assert=True):
         await clear_queue(ctx, True)
         await ctx.guild.voice_client.disconnect()
         await ctx.send(':smiling_face_with_tear: Leaving')
