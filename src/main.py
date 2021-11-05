@@ -16,7 +16,6 @@ from bot_token import str_token
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
-intents.presences = True
 
 music_queues = {}
 null_music_data = {'source' : None, 'title' : 'Null', 'requestor' : None}
@@ -46,12 +45,6 @@ async def on_ready():
     print('Logged in as {0.user}'.format(client))
     print('-------------------')
 
-@client.event
-async def on_member_update(before, after):
-    print('member', before.status, after.status)
-
-
-
 # ----------------------------------- help ----------------------------------- #
 @client.command(pass_context = True)
 async def help(ctx):
@@ -77,27 +70,26 @@ async def help(ctx):
 # ------------------------------------- - ------------------------------------ #
 
 # -------------------------------- isConnected ------------------------------- #
+async def send_if(ctx, check, message):
+    if check:
+        await ctx.send(message)
+        
 async def is_connected(ctx, user_connected = True, send_assert = False):
     if user_connected and not ctx.author.voice:
-        if send_assert:
-            await ctx.send(':angry: You are not in a voice channel!')
+        await send_if(ctx, send_assert, ':angry: You are not in a voice channel!')
         return False
 
-    channel = ctx.message.author.voice.channel
     voice = get(client.voice_clients, guild=ctx.guild)
-    guild_id = ctx.message.guild.id
     
     if voice and voice.is_connected():
         
         if user_connected and voice.channel != ctx.message.author.voice.channel:
-            if send_assert:
-                await ctx.send(':angry: You are not in the same voice channel as Boomby!')
+            await send_if(ctx, send_assert, ':angry: You are not in the same voice channel as Boomby!')
             return False
         
         return True
 
-    if send_assert:
-        await ctx.send(':confused: Boomby is not in a voice channel.. Use !join first.')
+    await send_if(ctx, send_assert, ':confused: Boomby is not in a voice channel.. Use !join first.')
     return False
 # ------------------------------------- - ------------------------------------ #
 
@@ -105,7 +97,7 @@ async def is_connected(ctx, user_connected = True, send_assert = False):
 def fformat(dur):
     hours, rem = divmod(dur, 3600)
     minutes, seconds = divmod(rem, 60)
-    return "{:0>2}h:{:0>2}m:{:02}s".format(int(hours),int(minutes),seconds)
+    return '{:0>2}h:{:0>2}m:{:02}s'.format(int(hours),int(minutes),seconds)
     
 async def fplay(ctx, url):
     if (ctx.author.voice):
@@ -119,7 +111,7 @@ async def fplay(ctx, url):
         await ctx.send(':angry: You are not in a voice channel!')
   
   
-    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True', 'default_search':"ytsearch"}
+    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True', 'default_search':'ytsearch'}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     voice = get(client.voice_clients, guild=ctx.guild)
   
@@ -153,20 +145,19 @@ async def fplay(ctx, url):
     embed.add_field(name='Requested by:', value=ctx.author.mention)
     
     if voice.is_playing():
-        embed.title = "Queued: " + str(title)
+        embed.title = 'Queued: ' + str(title)
         if guild_id in music_queues:
             music_queues[guild_id].append(music_data)
         else:
             music_queues[guild_id] = [music_data]
     else:
-        embed.title = ":headphones: Now playing: " + str(title)
+        embed.title = ':headphones: Now playing: ' + str(title)
         global currently_playing
         currently_playing[guild_id] = music_data
         voice.play(FFmpegPCMAudio(url, **FFMPEG_OPTIONS), after=lambda x=0: play_next_in_queue(ctx, ctx.message.guild.id))
 
     await ctx.send(embed=embed)    
-    if short_url:
-        await ctx.send(short_url or o_url)
+    await send_if(ctx, short_url, short_url)
     
 
 @client.command(pass_context = True)
@@ -184,15 +175,20 @@ async def fremove(ctx, index=0):
             local_queue = music_queues[ctx.message.guild.id]
             index = int(index)
             
+            print('old index', index)
+            
             if index == -1:
-                index = len(local_queue)
+                index = len(local_queue)-1
             else:
                 index -= 1
             
-            music_data = local_queue[index]
-            if music_data:
-                local_queue.pop(index)
-                await ctx.send("Removed: " + music_data['title'] + " from queue!")    
+            if index < 0 or index >= len(local_queue):
+                await ctx.send(':warning: Queue index is out of range. \n\nPlease use !queue first to find the correct queue index. A queue index of -1 would remove the most recently added song to queue')
+            else:
+                music_data = local_queue[index]
+                if music_data:
+                    local_queue.pop(index)
+                    await ctx.send('Removed: ' + music_data['title'] + ' from queue!')    
 
 @client.command(pass_context = True)
 async def remove(ctx, index):
@@ -228,7 +224,7 @@ async def fresume(ctx):
             voice.resume()
             await ctx.send(':play_pause: Resumed: ' + currently_playing[ctx.message.guild.id]['title'])
         else:
-            await ctx.send(":confused: The audio is not paused..?")
+            await ctx.send(':confused: The audio is not paused..?')
 
 @client.command(pass_context = True)
 async def resume(ctx):
