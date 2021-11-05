@@ -36,7 +36,7 @@ def play_next_in_queue(ctx, guild_id):
         currently_playing[guild_id] = null_music_data
         
         
-client = commands.Bot(command_prefix = '!', intents=intents, help_command=None)
+client = commands.Bot(command_prefix = '!', intents=intents, help_command=None, case_insensitive=True)
 
 @client.event
 async def on_ready():
