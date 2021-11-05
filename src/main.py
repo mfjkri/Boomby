@@ -1,12 +1,15 @@
 #!/media/Programming/repos/py/_discord_bots/Boomby/venv/bin/python   
 from random import random
 from threading import local
-import discord
 import time
+
+import discord
 from discord.ext import commands
 from discord.utils import get
+from discord.ext.commands import CommandNotFound
 from discord import FFmpegPCMAudio
 from discord import Status
+
 from youtube_dl import YoutubeDL
 from keep_alive import keep_alive
 
@@ -44,6 +47,14 @@ async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Logged in as {0.user}'.format(client))
     print('-------------------')
+
+
+@client.event
+async def on_command_error(ctx, error):
+    await ctx.send(":warning: Unknown command used. Please see `!help` for commands list and respective usage.")
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
 
 # ----------------------------------- help ----------------------------------- #
 @client.command(pass_context = True)
@@ -89,7 +100,7 @@ async def is_connected(ctx, user_connected = True, send_assert = False):
         
         return True
 
-    await send_if(ctx, send_assert, ':confused: Boomby is not in a voice channel.. Use !join first.')
+    await send_if(ctx, send_assert, ':confused: Boomby is not in a voice channel.. Use `!join` first.')
     return False
 # ------------------------------------- - ------------------------------------ #
 
@@ -177,7 +188,7 @@ async def fremove(ctx, index=0):
             index = (index == -1 and len(local_queue) - 1) or (index-1)            
             
             if index < 0 or index >= len(local_queue):
-                await ctx.send(':warning: Queue index is out of range. \n\nPlease use !queue first to find the correct queue index. A queue index of -1 would remove the most recently added song to queue')
+                await ctx.send(':warning: Queue index is out of range. \n\nPlease use `!queue` first to find the correct queue index. A queue index of -1 would remove the most recently added song to queue')
             else:
                 music_data = local_queue[index]
                 if music_data:
