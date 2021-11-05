@@ -56,7 +56,7 @@ async def help(ctx):
     embed.add_field(name='disconnect', value='Removes Boomby from your voice-channel.', inline=False)    
     
     embed.add_field(name='play, p [url/name]', value='Plays the song or adds to queue if there are already songs playing.', inline=False)
-    embed.add_field(name='remove, rm [queue_index]', value='Removes the song from the queue. Use !queue to find its queue_index.', inline=False)
+    embed.add_field(name='remove, rm [queue_index]', value='Removes the song from the queue. Use !queue to find its queue_index. A queue index of -1 will remove the most recently added song from queue.', inline=False)
     embed.add_field(name='queue, q', value='Displays the current song playing and upcoming songs in queue.', inline=False)
     
     embed.add_field(name='pause, ps', value='Pauses current song.', inline=False)
