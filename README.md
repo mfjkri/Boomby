@@ -5,7 +5,7 @@ Check the [requirements.txt](https://github.com/Eragonaz/Boomby/blob/master/requ
 
 
 ### 1) Install dependencies:
-`pip3 install flask, discord, pynacl, youtube_dl`
+`python -m pip install -r requirements.txt`
 
 Install ffmpeg from their official [website](https://ffmpeg.org/download.html) and add the `bin` folder to your `$(PATH)`.
 
