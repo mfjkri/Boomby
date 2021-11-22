@@ -1,12 +1,4 @@
-Dependencies:
-    flask
-    discord
-    PyNaCl
-    youtube_dl
-
-    ffmpeg
-
-# You can install flask, discord, PyNaCl and youtube_dl using pip
-pip3 install flask, discord, PyNaCl, youtube_dl
-
-# Install ffmpeg through their official website and add the bin folder to the exe files into your $PATH
+flask
+discord
+PyNaCl
+youtube_dl
